@@ -40,8 +40,10 @@ I will go with **Option 2 (Compound Geometry)**. It fits the "KISS" and "DOTI" r
 - None.
 
 ## Recent Context (last 5 actions)
-1. Enemy limbs: Added minimal biped legs + arms (Standard/Runner), spider legs (Swarm), stumpy legs + arms (Brute), piston legs (Tank). Walk-cycle animation synced to speed. Flying unchanged.
-2. Environment design: `src/constants/environment.ts` (palette, lighting, fog, ground, obstacles, pylons, hologram, path preview, VFX timing, lerpColorHex, getFogArgs); ENV_POST for bloom/vignette; GameScene wired to env; DOCS/ENVIRONMENT_DESIGN.md + SUMMARY link.
+1. Theme Engine: `src/data/themes_database.ts` (egyptian, historical, mythic). Map defaultThemeId; settings.selectedThemeId; getActiveThemeId(); useThemeRuntime(). GameScene/Grid/Enemy/Tower themed. SettingsPanel theme selector; MapSelector shows map theme. Obstacle decor: obelisk (pillar), ruin (box), shrine (glow).
+2. GitHub prep: Initialized git, added remote https://github.com/Otterdays/GAME-Tower-Defenders.git, initial commit pushed to main. Updated package.json name to game-tower-defenders, added .env to .gitignore.
+2. Enemy limbs: Added minimal biped legs + arms (Standard/Runner), spider legs (Swarm), stumpy legs + arms (Brute), piston legs (Tank). Walk-cycle animation synced to speed. Flying unchanged.
+3. Environment design: `src/constants/environment.ts` (palette, lighting, fog, ground, obstacles, pylons, hologram, path preview, VFX timing, lerpColorHex, getFogArgs); ENV_POST for bloom/vignette; GameScene wired to env; DOCS/ENVIRONMENT_DESIGN.md + SUMMARY link.
 3. Map 2 "The Gauntlet": 14x14, obstacles (walls), builtBy: "You" in MapSelector; obstacles in pathfinding/Grid; MAPS_DATABASE updated.
 4. Map 1: doubled enemies via enemyCountMultiplier: 2; getEnemyCountForWave(wave, mult); docs: MAPS_DATABASE wave layout, ENEMIES_DATABASE per-map note.
 5. SBOM improved (categories, versions, recommended additions); VISUAL_UX_STACK.md added (postprocessing, motion, react-spring/three, leva, QoL ideas).

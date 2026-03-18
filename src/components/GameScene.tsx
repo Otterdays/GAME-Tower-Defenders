@@ -12,15 +12,11 @@ import { PauseOverlay } from './UI/PauseOverlay';
 import { SettingsPanel } from './UI/SettingsPanel';
 import { GameOverOverlay } from './UI/GameOverOverlay';
 import { useGameStore } from '../store/gameStore';
-import {
-  ENV_PALETTE,
-  ENV_LIGHTING,
-  ENV_POST,
-  getFogArgs,
-} from '../constants/environment';
+import { useThemeRuntime, getFogArgsFromRuntime } from '../constants/themeRuntime';
 
 export const GameScene: React.FC = () => {
   const { activeOverlay, runState, closeSettings } = useGameStore();
+  const theme = useThemeRuntime();
 
   return (
     <div style={{
@@ -28,34 +24,34 @@ export const GameScene: React.FC = () => {
       height: '100vh',
       position: 'relative',
       overflow: 'hidden',
-      backgroundColor: ENV_PALETTE.background,
+      backgroundColor: theme.palette.background,
     }}>
       <Canvas shadows camera={{ position: [0, 10, 10], fov: 45 }} gl={{ antialias: false, toneMappingExposure: 1 }}>
         <CameraRig />
-        <ambientLight intensity={ENV_LIGHTING.ambient.intensity} />
+        <ambientLight intensity={theme.lighting.ambient.intensity} />
         <directionalLight
-          position={ENV_LIGHTING.directional.position}
-          intensity={ENV_LIGHTING.directional.intensity}
+          position={theme.lighting.directional.position}
+          intensity={theme.lighting.directional.intensity}
           castShadow
-          shadow-mapSize={[ENV_LIGHTING.directional.shadowMapSize, ENV_LIGHTING.directional.shadowMapSize]}
+          shadow-mapSize={[theme.lighting.directional.shadowMapSize, theme.lighting.directional.shadowMapSize]}
         />
-        <fog attach="fog" args={getFogArgs()} />
+        <fog attach="fog" args={getFogArgsFromRuntime(theme)} />
 
-        <Grid />
+        <Grid theme={theme} />
         <EnemyManager />
         <VFXManager />
 
         <EffectComposer enableNormalPass={false}>
           <Bloom
-            luminanceThreshold={ENV_POST.bloom.luminanceThreshold}
-            mipmapBlur={ENV_POST.bloom.mipmapBlur}
-            intensity={ENV_POST.bloom.intensity}
-            radius={ENV_POST.bloom.radius}
+            luminanceThreshold={theme.post.bloom.luminanceThreshold}
+            mipmapBlur={theme.post.bloom.mipmapBlur}
+            intensity={theme.post.bloom.intensity}
+            radius={theme.post.bloom.radius}
           />
           <Vignette
-            eskil={ENV_POST.vignette.eskil}
-            offset={ENV_POST.vignette.offset}
-            darkness={ENV_POST.vignette.darkness}
+            eskil={theme.post.vignette.eskil}
+            offset={theme.post.vignette.offset}
+            darkness={theme.post.vignette.darkness}
           />
         </EffectComposer>
       </Canvas>

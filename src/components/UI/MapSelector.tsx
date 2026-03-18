@@ -1,5 +1,6 @@
 import React from 'react';
 import { getAllMaps } from '../../data/maps_database';
+import { getThemeById } from '../../data/themes_database';
 import { audioManager } from '../../utils/audio/audioManager';
 
 const overlayStyle: React.CSSProperties = {
@@ -79,6 +80,11 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect, onBack }) =>
             {map.builtBy && (
               <div style={{ fontSize: '12px', marginTop: '6px', fontStyle: 'italic', color: '#666' }}>
                 Built by {map.builtBy}
+              </div>
+            )}
+            {map.defaultThemeId && (
+              <div style={{ fontSize: '12px', marginTop: '4px', color: '#888' }}>
+                Theme: {getThemeById(map.defaultThemeId).name}
               </div>
             )}
           </button>

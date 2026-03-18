@@ -4,11 +4,13 @@ import { Vector3, Mesh, MeshStandardMaterial, Color, Group } from 'three';
 import { useGameStore, enemyPositions } from '../store/gameStore';
 import type { EnemyData } from '../store/gameStore';
 import { audioManager } from '../utils/audio/audioManager';
+import { useThemeRuntime } from '../constants/themeRuntime';
 
 const HIT_COLOR = new Color('#ffffff');
 
 export const Enemy: React.FC<{ data: EnemyData }> = ({ data }) => {
   const { path, gridSize, removeEnemy, loseHealth, setNarratorMessage, endPoint, runState } = useGameStore();
+  const theme = useThemeRuntime();
   const enemyRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshStandardMaterial>(null);
   const lastHp = useRef(data.hp);
@@ -18,13 +20,9 @@ export const Enemy: React.FC<{ data: EnemyData }> = ({ data }) => {
   const toWorld = (coord: number) => coord - (gridSize / 2) + 0.5;
 
   const baseColor = React.useMemo(() => {
-    if (data.type === 'Tank') return new Color('#8b0000');
-    if (data.type === 'Flying') return new Color('#00bfff');
-    if (data.type === 'Runner') return new Color('#32cd32');
-    if (data.type === 'Swarm') return new Color('#ffd700');
-    if (data.type === 'Brute') return new Color('#4b0082');
-    return new Color('#ff4500');
-  }, [data.type]);
+    const hex = theme.unitColors.enemy[data.type] ?? '#ff4500';
+    return new Color(hex);
+  }, [data.type, theme.unitColors]);
 
   // Initialize position to the start of the path
   useEffect(() => {

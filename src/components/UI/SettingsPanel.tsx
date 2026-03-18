@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { getAllThemes } from '../../data/themes_database';
 
 const panelStyle: React.CSSProperties = {
   position: 'absolute',
@@ -39,11 +40,26 @@ const buttonStyle: React.CSSProperties = {
 };
 
 export const SettingsPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { settings, setMasterVolume, setMuted, updateVisualSetting } = useGameStore();
+  const { settings, setMasterVolume, setMuted, updateVisualSetting, setSelectedTheme } = useGameStore();
+  const themes = getAllThemes();
 
   return (
     <div style={panelStyle}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '28px', color: '#333' }}>Settings</h2>
+
+      <div style={rowStyle}>
+        <span style={{ fontSize: '16px' }}>Theme</span>
+        <select
+          value={settings.selectedThemeId}
+          onChange={(e) => setSelectedTheme(e.target.value as typeof settings.selectedThemeId)}
+          style={{ ...buttonStyle, padding: '6px 12px', fontSize: '14px', minWidth: '140px' }}
+        >
+          <option value="map_default">Map Default</option>
+          {themes.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+      </div>
 
       <div style={rowStyle}>
         <span style={{ fontSize: '16px' }}>Mute</span>

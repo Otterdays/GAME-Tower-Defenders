@@ -4,7 +4,6 @@
  */
 
 import type { EnemyType } from '../store/gameStore';
-import type { TowerType } from '../store/gameStore';
 
 export type ThemeId = 'egyptian' | 'historical' | 'mythic';
 
@@ -82,6 +81,9 @@ export type ThemeDecor = {
   obstacleColor: string;
   obstacleRoughness: number;
   obstacleMetalness: number;
+  /** Shrine style: subtle glow */
+  obstacleEmissive?: string;
+  obstacleEmissiveIntensity?: number;
 };
 
 export type ThemeDefinition = {
@@ -305,6 +307,8 @@ const THEME_DEFINITIONS: ThemeDefinition[] = [
       obstacleColor: '#3d3d5c',
       obstacleRoughness: 0.7,
       obstacleMetalness: 0.25,
+      obstacleEmissive: '#9b59b6',
+      obstacleEmissiveIntensity: 0.3,
     },
   },
 ];

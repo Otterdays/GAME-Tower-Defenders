@@ -9,19 +9,25 @@ import {
   computeEnemyStats,
 } from '../data/enemies_database';
 import { getMapById } from '../data/maps_database';
+import { getThemeById, type ThemeId } from '../data/themes_database';
 
 export type { Point };
+export type { ThemeId };
+
+/** Resolve active theme: map default or global override */
+export function getActiveThemeId(settings: SettingsData, currentMapId: string): ThemeId {
+  const sel = settings.selectedThemeId;
+  if (sel === 'map_default') {
+    const map = getMapById(currentMapId);
+    return (map.defaultThemeId ?? 'historical') as ThemeId;
+  }
+  return sel;
+}
 export { getEnemyCountForWave, getSpawnIntervalForWave } from '../data/enemies_database';
 
-function deathParticleColor(type: EnemyType): string {
-  switch (type) {
-    case 'Tank': return '#8b0000';
-    case 'Flying': return '#00bfff';
-    case 'Runner': return '#32cd32';
-    case 'Swarm': return '#ffd700';
-    case 'Brute': return '#4b0082';
-    default: return '#ff4500';
-  }
+function deathParticleColor(themeId: ThemeId, type: EnemyType): string {
+  const theme = getThemeById(themeId);
+  return theme.unitColors.enemy[type] ?? '#ff4500';
 }
 
 export type EnemyType = 'Standard' | 'Tank' | 'Flying' | 'Runner' | 'Swarm' | 'Brute';
@@ -79,6 +85,8 @@ const SETTINGS_STORAGE_KEY = 'ironhold-settings';
 export type RunState = 'IDLE' | 'PRE_WAVE' | 'WAVE' | 'PAUSED' | 'GAME_OVER';
 export type ActiveOverlay = 'NONE' | 'PAUSE' | 'SETTINGS' | 'GAME_OVER' | 'GALLERY';
 
+export type SelectedThemeId = ThemeId | 'map_default';
+
 export type SettingsData = {
   masterVolume: number;
   isMuted: boolean;
@@ -87,6 +95,8 @@ export type SettingsData = {
   showFloatingText: boolean;
   showPathPreview: boolean;
   reducedMotion: boolean;
+  /** Theme: 'map_default' uses map's defaultThemeId; else global override */
+  selectedThemeId: SelectedThemeId;
 };
 
 const DEFAULT_SETTINGS: SettingsData = {
@@ -97,6 +107,7 @@ const DEFAULT_SETTINGS: SettingsData = {
   showFloatingText: true,
   showPathPreview: true,
   reducedMotion: false,
+  selectedThemeId: 'map_default',
 };
 
 function loadSettingsFromStorage(): SettingsData {
@@ -104,7 +115,10 @@ function loadSettingsFromStorage(): SettingsData {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
     const parsed = JSON.parse(raw) as Partial<SettingsData>;
-    return { ...DEFAULT_SETTINGS, ...parsed };
+    const merged = { ...DEFAULT_SETTINGS, ...parsed };
+    const validThemes: SelectedThemeId[] = ['map_default', 'egyptian', 'historical', 'mythic'];
+    if (!validThemes.includes(merged.selectedThemeId as SelectedThemeId)) merged.selectedThemeId = 'map_default';
+    return merged;
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
@@ -153,6 +167,7 @@ interface GameState {
   openGallery: () => void;
   closeGallery: () => void;
   updateVisualSetting: <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => void;
+  setSelectedTheme: (themeId: SelectedThemeId) => void;
   loadSettings: () => void;
   loseHealth: (amount: number) => void;
 
@@ -341,6 +356,11 @@ export const useGameStore = create<GameState>((set, get) => ({
     saveSettingsToStorage(next);
     return { settings: next };
   }),
+  setSelectedTheme: (themeId) => set((state) => {
+    const next = { ...state.settings, selectedThemeId: themeId };
+    saveSettingsToStorage(next);
+    return { settings: next };
+  }),
   loadSettings: () => set({ settings: loadSettingsFromStorage() }),
   loseHealth: (amount) => set((state) => {
     const newHealth = Math.max(0, state.health - amount);
@@ -460,10 +480,11 @@ export const useGameStore = create<GameState>((set, get) => ({
         timestamp: Date.now()
       });
 
+      const themeId = getActiveThemeId(state.settings, state.currentMapId ?? 'map_1');
       const newParticles = [...state.particles, {
         id: uuidv4(),
         position: posArray,
-        color: deathParticleColor(enemy.type),
+        color: deathParticleColor(themeId, enemy.type),
         timestamp: Date.now()
       }];
 
@@ -528,10 +549,11 @@ export const useGameStore = create<GameState>((set, get) => ({
           timestamp: Date.now()
         });
 
+        const themeId = getActiveThemeId(state.settings, state.currentMapId ?? 'map_1');
         stateUpdates.particles.push({
           id: uuidv4(),
           position: posArray,
-          color: deathParticleColor(enemy.type),
+          color: deathParticleColor(themeId, enemy.type),
           timestamp: Date.now()
         });
 

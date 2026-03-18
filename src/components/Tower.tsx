@@ -5,6 +5,7 @@ import { Line } from '@react-three/drei';
 import { useGameStore, enemyPositions } from '../store/gameStore';
 import type { TowerData, EnemyData, TargetMode } from '../store/gameStore';
 import { audioManager } from '../utils/audio/audioManager';
+import { useThemeRuntime } from '../constants/themeRuntime';
 
 const MORTAR_LEAD_TIME = 0.5;
 
@@ -36,24 +37,28 @@ function pickTarget(
 
 export const Tower: React.FC<TowerProps> = ({ data, worldPosition }) => {
   if (!data) return null;
+  const theme = useThemeRuntime();
   const topRef = useRef<Mesh>(null);
   const [laserTarget, setLaserTarget] = useState<Vector3 | null>(null);
   const lastFired = useRef<number>(0);
 
   const isGatling = data.type === 'Gatling';
   const upgrade = data.upgrade ?? 'default';
+  const tc = theme.unitColors.tower;
 
   let range = isGatling ? 3.0 : 5.0;
   let fireRate = isGatling ? 0.3 : 2.5;
   let damage = isGatling ? 2 : 15;
   let aoeRadius = isGatling ? 0 : 2.0;
-  let tracerColor = isGatling ? '#ffff00' : '#ff8c00';
+  let tracerColor = isGatling ? tc.tracerDefault : tc.tracerDefault;
   if (isGatling) {
-    if (upgrade === 'rapid') { fireRate = 0.15; damage = 2; tracerColor = '#ffff88'; }
-    else if (upgrade === 'pierce') { damage = 4; fireRate = 0.35; tracerColor = '#88ddff'; }
+    if (upgrade === 'rapid') { fireRate = 0.15; damage = 2; tracerColor = tc.tracerRapid; }
+    else if (upgrade === 'pierce') { damage = 4; fireRate = 0.35; tracerColor = tc.tracerPierce; }
+    else tracerColor = tc.tracerDefault;
   } else {
-    if (upgrade === 'bigBoom') { aoeRadius = 3.0; damage = 12; tracerColor = '#ff4400'; }
-    else if (upgrade === 'shrapnel') { aoeRadius = 1.5; damage = 22; tracerColor = '#ffaa00'; }
+    if (upgrade === 'bigBoom') { aoeRadius = 3.0; damage = 12; tracerColor = tc.tracerBigBoom; }
+    else if (upgrade === 'shrapnel') { aoeRadius = 1.5; damage = 22; tracerColor = tc.tracerShrapnel; }
+    else tracerColor = tc.tracerDefault;
   }
 
   useFrame((state, delta) => {
@@ -135,7 +140,7 @@ export const Tower: React.FC<TowerProps> = ({ data, worldPosition }) => {
             {/* Gatling Body */}
             <mesh castShadow>
               <boxGeometry args={[0.4, 0.4, 0.6]} />
-              <meshStandardMaterial color="#ff1493" />
+              <meshStandardMaterial color={tc.gatling} />
             </mesh>
             {/* Multi-Barrel Assembly */}
             <group position={[0, 0, 0.4]}>
@@ -161,7 +166,7 @@ export const Tower: React.FC<TowerProps> = ({ data, worldPosition }) => {
             {/* Mortar Turret Ball */}
             <mesh castShadow>
               <sphereGeometry args={[0.35, 32, 16]} />
-              <meshStandardMaterial color="#ff4500" />
+              <meshStandardMaterial color={tc.mortar} />
             </mesh>
             {/* Mortar Barrel */}
             <mesh position={[0, 0.1, 0.2]} rotation={[Math.PI / 4, 0, 0]} castShadow>
